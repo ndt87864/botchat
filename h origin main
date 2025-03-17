@@ -1,0 +1,16 @@
+[1mdiff --git a/.idea/vcs.xml b/.idea/vcs.xml[m
+[1mindex 94a25f7..0cede56 100644[m
+[1m--- a/.idea/vcs.xml[m
+[1m+++ b/.idea/vcs.xml[m
+[36m@@ -2,5 +2,7 @@[m
+ <project version="4">[m
+   <component name="VcsDirectoryMappings">[m
+     <mapping directory="$PROJECT_DIR$" vcs="Git" />[m
+[32m+[m[32m    <mapping directory="$PROJECT_DIR$/app" vcs="Git" />[m
+[32m+[m[32m    <mapping directory="$PROJECT_DIR$/app/git-filter-repo" vcs="Git" />[m
+   </component>[m
+ </project>[m
+\ No newline at end of file[m
+[1mdiff --git a/app/.gitignore b/app/.gitignore[m
+[1mindex 42afabf..e6a2c60 100644[m
+Binary files a/app/.gitignore and b/app/.gitignore differ
