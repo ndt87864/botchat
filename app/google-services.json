@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "721910077891",
+    "project_id": "botchat-da21f",
+    "storage_bucket": "botchat-da21f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721910077891:android:890171a77342fc9240c576",
+        "android_client_info": {
+          "package_name": "com.example.botchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "721910077891-bb0mhvq6m5gq3glprlpr958d6krrje4i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.botchat",
+            "certificate_hash": "0b8fd4c7478d8f7b35b4069cc84c82aa2b57d725"
+          }
+        },
+        {
+          "client_id": "721910077891-rcgpvund4s72ffls15dataqf643cgq6d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvg0beoOcrfHDjPhm23vtlrrIPE9GcptQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "721910077891-rcgpvund4s72ffls15dataqf643cgq6d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
