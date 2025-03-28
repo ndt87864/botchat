@@ -5,6 +5,7 @@ import android.media.MediaPlayer
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import com.example.botchat.R
+import com.example.botchat.chatbox.model.MessageModel
 import com.example.botchat.chatbox.viewModel.search.GoogleSearch
 import com.example.botchat.chatbox.viewModel.search.YouTubeSearch
 import com.google.ai.client.generativeai.GenerativeModel
@@ -120,6 +121,7 @@ class ConversationHandler(
             Câu hỏi từ ${userName.value}: $question
             Ngày hiện tại: $currentDate
             Lịch sử trò chuyện: $chatHistory
+            Tài liệu tham khảo từ Google (Json): $googleJsonResults
             Tài liệu tham khảo từ YouTube (JSON): $youtubeJsonResults
             Đặc điểm của tôi: ${botCharacteristics.value}
             Yêu cầu khác: ${otherRequirements.value}

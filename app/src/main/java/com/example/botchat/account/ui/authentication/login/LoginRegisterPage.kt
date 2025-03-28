@@ -19,6 +19,7 @@ import com.google.android.gms.common.api.ApiException
 import java.util.Calendar
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.botchat.BuildConfig
 import com.example.botchat.account.ui.authentication.login.components.ConfirmPasswordField
 import com.example.botchat.account.ui.authentication.login.components.EmailField
 import com.example.botchat.account.ui.authentication.login.components.ErrorMessage
@@ -73,30 +74,44 @@ fun LoginRegisterPage(
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-            try {
-                val account = task.getResult(ApiException::class.java)
-                coroutineScope.launch {
-                    val success = viewModel.signInWithGoogle(
-                        googleIdToken = account.idToken ?: "",
-                        displayName = account.displayName,
-                        email = account.email
-                    )
-                    if (success) {
-                        Toast.makeText(context, "Đăng nhập thành công với Google!", Toast.LENGTH_SHORT).show()
-                        chatViewModel.createNewChatRoom()
-                        onNavigateToChat()
-                    } else {
-                        errorMessage = "Đăng nhập với Google thất bại"
+        println("Google Sign-In Result: ${result.resultCode}")
+        println("Result Data: ${result.data?.extras}")
+        when (result.resultCode) {
+            Activity.RESULT_OK -> {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                try {
+                    val account = task.getResult(ApiException::class.java)
+                    println("Google Account: ${account.email}, Token: ${account.idToken}")
+                    coroutineScope.launch {
+                        val success = viewModel.signInWithGoogle(
+                            googleIdToken = account.idToken ?: "",
+                            displayName = account.displayName,
+                            email = account.email
+                        )
+                        println("Sign-in with Google result: $success")
+                        if (success) {
+                            println("Showing success Toast and navigating to chat")
+                            Toast.makeText(context, "Đăng nhập thành công với Google!", Toast.LENGTH_SHORT).show()
+                            chatViewModel.createNewChatRoom()
+                            onNavigateToChat()
+                        } else {
+                            errorMessage = "Đăng nhập với Google thất bại dù Google báo thành công"
+                            println("Sign-in failed despite Google success")
+                        }
                     }
+                } catch (e: ApiException) {
+                    errorMessage = "Lỗi Google: ${e.statusCode} - ${e.message}"
+                    println("Google Sign-In Exception: ${e.statusCode}: ${e.message}")
                 }
-            } catch (e: ApiException) {
-                errorMessage = "Lỗi Google: ${e.message}"
+            }
+            Activity.RESULT_CANCELED -> {
+                // Xử lý như trước
+            }
+            else -> {
+                errorMessage = "Đăng nhập Google thất bại với mã lỗi: ${result.resultCode}"
             }
         }
     }
-
     // Giao diện chính
     Column(modifier = modifier.padding(16.dp)) {
         Spacer(modifier = if (isRegistering) Modifier.height(32.dp) else Modifier.height(50.dp))
@@ -175,7 +190,7 @@ fun LoginRegisterPage(
             onClick = {
                 val activity = context as ComponentActivity
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(activity.getString(R.string.default_web_client_id))
+                    .requestIdToken(BuildConfig.google_client_id)
                     .requestEmail()
                     .build()
                 val googleSignInClient = GoogleSignIn.getClient(activity, gso)

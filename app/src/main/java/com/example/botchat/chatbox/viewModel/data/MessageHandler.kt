@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.botchat.chatbox.constants.Constants
 import com.example.botchat.chatbox.model.MessageModel
 import com.example.botchat.chatbox.viewModel.call.CallHandler
-import com.example.botchat.chatbox.viewModel.call.UiEvent
+import com.example.botchat.chatbox.model.UiEvent
 import com.example.botchat.chatbox.viewModel.search.GoogleSearch
 import com.example.botchat.chatbox.viewModel.search.YouTubeSearch
 import com.example.botchat.chatbox.viewModel.sms.SMSHandler

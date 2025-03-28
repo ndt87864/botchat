@@ -6,7 +6,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import com.example.botchat.chatbox.viewModel.ChatViewModel
-import com.example.botchat.chatbox.viewModel.call.UiEvent
+import com.example.botchat.chatbox.model.UiEvent
 import com.example.botchat.chatbox.model.MessageModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore

@@ -197,6 +197,7 @@ fun MessageInput(onMessageSend: (String) -> Unit, viewModel: ChatViewModel) {
                                         showAnalysisSubMenu = true
                                     }
                                 )
+
                             }
                             DropdownMenu(
                                 expanded = showOCRSubMenu,

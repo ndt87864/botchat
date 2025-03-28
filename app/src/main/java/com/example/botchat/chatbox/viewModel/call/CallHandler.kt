@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import com.example.botchat.chatbox.viewModel.ChatViewModel
 import com.example.botchat.chatbox.model.MessageModel
+import com.example.botchat.chatbox.model.UiEvent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions

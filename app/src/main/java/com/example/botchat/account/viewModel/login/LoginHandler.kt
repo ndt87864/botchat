@@ -24,12 +24,14 @@ class LoginHandler(
         }
     }
 
-    suspend fun signInWithGoogle(googleIdToken: String, displayName: String?, email: String?, dateOfBirth: String? = null): Boolean {
+    suspend fun signInWithGoogle(googleIdToken: String, displayName: String?, email: String?, dateOfBirth: String?): Boolean {
         return try {
+            println("Starting Firebase sign-in with Google ID Token: $googleIdToken")
             val credential = GoogleAuthProvider.getCredential(googleIdToken, null)
             val result = auth.signInWithCredential(credential).await()
             val user = result.user
             if (user != null) {
+                println("Firebase User Signed In: ${user.uid}, ${user.email}")
                 val document = db.collection("users").document(user.uid).get().await()
                 if (!document.exists()) {
                     val userData = mapOf(
@@ -37,14 +39,19 @@ class LoginHandler(
                         "email" to (email ?: ""),
                         "dateOfBirth" to (dateOfBirth ?: "")
                     )
+                    println("Saving user data to Firestore: $userData")
                     db.collection("users").document(user.uid).set(userData).await()
+                    println("User data saved successfully")
                 }
                 true
             } else {
+                println("Firebase sign-in failed: User is null")
                 false
             }
         } catch (e: Exception) {
+            println("Firebase sign-in error: ${e.message}")
             false
         }
     }
+
 }

@@ -87,11 +87,25 @@ class VoidChatViewModel : ViewModel() {
         if (speechRecognizer == null && SpeechRecognizer.isRecognitionAvailable(context)) {
             speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context).apply {
                 setRecognitionListener(object : RecognitionListener {
-                    override fun onReadyForSpeech(params: Bundle?) { Log.d("Speech", "Sẵn sàng ghi âm") }
-                    override fun onBeginningOfSpeech() { Log.d("Speech", "Bắt đầu nói") }
-                    override fun onRmsChanged(rmsdB: Float) {}
+                    override fun onReadyForSpeech(params: Bundle?) {
+                        Log.d("Speech", "Sẵn sàng ghi âm")
+                    }
+                    override fun onBeginningOfSpeech() {
+                        Log.d("Speech", "Bắt đầu nói")
+                        speechHandler.resetSilenceTimer()
+                    }
+                    override fun onRmsChanged(rmsdB: Float) {
+                        // Giảm ngưỡng để nhạy hơn với âm thanh nhỏ
+                        if (rmsdB > 0.5f) { // Thử nghiệm với ngưỡng thấp hơn
+                            speechHandler.resetSilenceTimer()
+                            Log.d("Speech", "Âm thanh được phát hiện: $rmsdB")
+                        }
+                    }
                     override fun onBufferReceived(buffer: ByteArray?) {}
-                    override fun onEndOfSpeech() { Log.d("Speech", "Kết thúc nói") }
+                    override fun onEndOfSpeech() {
+                        Log.d("Speech", "Kết thúc nói")
+                        // Không dừng ngay, để timer xử lý
+                    }
                     override fun onError(error: Int) {
                         isRecording.value = false
                         val errorMsg = when (error) {
@@ -107,14 +121,20 @@ class VoidChatViewModel : ViewModel() {
                         val resultList = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                         if (!resultList.isNullOrEmpty()) {
                             val userMessage = resultList[0]
-                            // Gọi processUserMessage thay vì gọi qua conversationHandler
                             processUserMessage(userMessage, context)
                         } else {
                             Toast.makeText(context, "Không nhận được kết quả", Toast.LENGTH_SHORT).show()
                         }
                         isRecording.value = false
                     }
-                    override fun onPartialResults(partialResults: Bundle?) {}
+                    override fun onPartialResults(partialResults: Bundle?) {
+                        // Theo dõi kết quả từng phần để reset timer
+                        val partialList = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                        if (!partialList.isNullOrEmpty()) {
+                            speechHandler.resetSilenceTimer()
+                            Log.d("Speech", "Kết quả từng phần: ${partialList[0]}")
+                        }
+                    }
                     override fun onEvent(eventType: Int, params: Bundle?) {}
                 })
             }
@@ -149,18 +169,16 @@ class VoidChatViewModel : ViewModel() {
             Toast.makeText(context, "Vui lòng cấp quyền ghi âm trong cài đặt", Toast.LENGTH_LONG).show()
         }
 
-        // Gọi saveUserToFirestore khi khởi tạo
         viewModelScope.launch {
             val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "default@example.com"
             saveUserToFirestore(userEmail)
-            saveSettings() // Lưu cài đặt cục bộ sau khi khởi tạo
+            saveSettings()
         }
     }
 
     private fun reloadSettings(context: Context) {
         viewModelScope.launch {
             val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: "default@example.com"
-            // Sử dụng loadDefaultOrLatestSettings thay vì logic trùng lặp
             val loadedFromFirestore = loadDefaultOrLatestSettings(userEmail)
             if (!loadedFromFirestore) {
                 settingsHandler.loadSettings()
@@ -176,7 +194,6 @@ class VoidChatViewModel : ViewModel() {
 
     fun onResume(context: Context) {
         reloadSettings(context)
-        // Lưu cài đặt khi resume
         saveSettings()
     }
 

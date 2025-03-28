@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import com.example.botchat.chatbox.viewModel.ChatViewModel
-import com.example.botchat.chatbox.viewModel.call.UiEvent
+import com.example.botchat.chatbox.model.UiEvent
 
 @Composable
 fun HandleUiEvents(

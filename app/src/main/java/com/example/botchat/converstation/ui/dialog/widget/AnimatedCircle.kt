@@ -117,10 +117,10 @@ fun AnimatedCircle(
         )
         val waveOffset = if (isBotSpeaking) waveOffsetRaw else 0f
 
-        val colorA = lerp(Color(0xFF69DF65), Color(0xFFE6E3C5), colorShift1)
-        val colorB = lerp(Color(0xFF1592D6), Color(0xFF07DDF0), colorShift2)
-        val colorC = lerp(Color(0xFFAAF006), Color(0xFF00FFAE), colorShift1)
-        val gradientColors = listOf(colorA, colorB, colorC, Color(0xFF7A7777))
+        val colorA = lerp(Color(0xFF29DD9D), Color(0xFFE6E3C5), colorShift1)
+        val colorB = lerp(Color(0xFF1592D6), Color(0xFFAEF2F8), colorShift2)
+        val colorC = lerp(Color(0xFF0066FF), Color(0xFF00FFAE), colorShift1)
+        val gradientColors = listOf(colorA, colorB, colorC, Color(0xFFDBDBDB))
 
         Box(
             modifier = modifier

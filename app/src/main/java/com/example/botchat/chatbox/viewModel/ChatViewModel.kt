@@ -21,7 +21,7 @@ import com.example.botchat.chatbox.constants.Constants
 import com.example.botchat.chatbox.model.MessageModel
 import com.example.botchat.chatbox.viewModel.text.TextProcessor
 import com.example.botchat.chatbox.viewModel.call.CallHandler
-import com.example.botchat.chatbox.viewModel.call.UiEvent
+import com.example.botchat.chatbox.model.UiEvent
 import com.example.botchat.chatbox.viewModel.data.ChatRoomManager
 import com.example.botchat.chatbox.viewModel.data.FirestoreHandler
 import com.example.botchat.chatbox.viewModel.data.MessageHandler
@@ -55,7 +55,9 @@ class ChatViewModel : ViewModel() {
     // 1.2. Xác thực và quản lý dữ liệu
     val auth = FirebaseAuth.getInstance() // Xác thực Firebase
     val firestoreHandler = FirestoreHandler() // Trình xử lý Firestore
-    val chatRoomManager = ChatRoomManager(firestoreHandler, auth, messageList) // Quản lý phòng chat
+    val chatRoomManager = ChatRoomManager(firestoreHandler, auth, messageList) { newRoomId ->
+        roomId = newRoomId
+    }
     private val _event = Channel<UiEvent>() // Kênh sự kiện giao diện
     val event = _event.receiveAsFlow() // Luồng sự kiện giao diện
 
@@ -183,7 +185,6 @@ class ChatViewModel : ViewModel() {
         if (currentMessages.isNotEmpty()) {
             hasContentInCurrentRoom = true
             chatRoomManager.createNewChatRoom(userEmail)
-            roomId = chatRoomManager.roomId
             chatRoomManager.loadMessages(userEmail) // Tải tin nhắn cho phòng mới
         }
     }
@@ -200,7 +201,6 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             val userEmail = auth.currentUser?.email ?: return@launch
             chatRoomManager.createNewChatRoom(userEmail)
-            roomId = chatRoomManager.roomId
         }
     }
 
@@ -366,14 +366,6 @@ class ChatViewModel : ViewModel() {
         youtubeSearch.toggleYoutubeMode(context, isYoutubeMode) { newMode ->
             isYoutubeMode = newMode
         }
-    }
-
-    suspend fun searchGoogle(query: String): String {
-        return googleSearch.search(query)
-    }
-
-    private suspend fun searchYouTubeVideos(query: String, maxResults: Int): List<String> {
-        return youtubeSearch.search(query, maxResults)
     }
 
     fun extractYouTubeVideoIds(message: String): List<String> {

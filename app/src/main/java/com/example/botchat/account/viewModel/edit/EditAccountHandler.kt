@@ -43,7 +43,7 @@ class EditAccountHandler(
                 return Result.failure(Exception("Bạn phải ít nhất 15 tuổi để cập nhật thông tin"))
             }
 
-            // Xác thực lại nếu cần thay đổi email hoặc mật khẩu
+
             val oldEmail = user.email!!
             if ((email != oldEmail || password.isNotEmpty()) && currentPassword != null) {
                 val credential = EmailAuthProvider.getCredential(oldEmail, currentPassword)

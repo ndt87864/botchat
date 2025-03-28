@@ -148,8 +148,10 @@ fun NavigationDrawerExample(
                         modifier = Modifier.fillMaxSize().padding(innerPadding).background(MaterialTheme.colorScheme.background),
                         onChatSelected = { roomId ->
                             selectedItem = "Chế độ trò chuyện"
-                            coroutineScope.launch { drawerState.close() }
-                            chatViewModel.roomId = roomId
+                            coroutineScope.launch {
+                                drawerState.close()
+                                chatViewModel.roomId = roomId
+                            }
                         }
                     )
                     "Cá nhân hóa" -> SettingChatBot(

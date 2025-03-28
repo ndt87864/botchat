@@ -2,6 +2,8 @@ package com.example.botchat.converstation.viewModel.speech
 
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.speech.tts.TextToSpeech
@@ -16,6 +18,9 @@ class SpeechHandler(
     private val isBotSpeaking: MutableState<Boolean>,
     private val isSpeakerOn: MutableState<Boolean>
 ) {
+    private var silenceHandler: Handler? = null
+    private var silenceRunnable: Runnable? = null
+    private val silenceTimeout = 1500L
 
     fun startRecording(context: Context) {
         if (!isRecording.value && !isBotSpeaking.value) {
@@ -26,10 +31,14 @@ class SpeechHandler(
             isRecording.value = true
             val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN") // Ngôn ngữ tiếng Việt
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
+                putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true) // Bật partial results
             }
             speechRecognizer.startListening(intent)
             Log.d("SpeechHandler", "Bắt đầu ghi âm")
+
+            silenceHandler = Handler(Looper.getMainLooper())
+            resetSilenceTimer()
         } else {
             Log.d("SpeechHandler", "Không thể ghi âm: Đang ghi hoặc bot đang nói")
         }
@@ -39,8 +48,20 @@ class SpeechHandler(
         if (isRecording.value) {
             speechRecognizer?.stopListening()
             isRecording.value = false
+            silenceHandler?.removeCallbacks(silenceRunnable ?: return)
             Log.d("SpeechHandler", "Dừng ghi âm")
         }
+    }
+
+    fun resetSilenceTimer() {
+        silenceHandler?.removeCallbacks(silenceRunnable ?: return)
+        silenceRunnable = Runnable {
+            if (isRecording.value) {
+                Log.d("SpeechHandler", "Phát hiện khoảng lặng 2 giây, tự động dừng ghi âm")
+                stopRecording()
+            }
+        }
+        silenceHandler?.postDelayed(silenceRunnable!!, silenceTimeout)
     }
 
     fun speakBotResponse(response: String, context: Context) {

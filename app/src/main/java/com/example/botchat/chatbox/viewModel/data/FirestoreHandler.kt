@@ -98,7 +98,40 @@ class FirestoreHandler(
             return 1
         }
     }
+    // Lấy ID của phòng chat mới nhất
+    suspend fun getLatestChatRoomId(userEmail: String): Int? {
+        return try {
+            val roomsSnapshot = firestore.collection("chats")
+                .document(userEmail)
+                .collection("rooms")
+                .get()
+                .await()
 
+            // Lấy danh sách các roomId và tìm roomId lớn nhất
+            val roomNumbers = roomsSnapshot.documents.mapNotNull { it.id.toIntOrNull() }
+            roomNumbers.maxOrNull()
+        } catch (e: Exception) {
+            Log.e("FirestoreHandler", "Error getting latest chat room ID: ${e.message}")
+            null
+        }
+    }
+    // Kiểm tra xem phòng chat có trống hay không
+    suspend fun isRoomEmpty(roomId: Int, userEmail: String): Boolean {
+        return try {
+            val messagesSnapshot = firestore.collection("chats")
+                .document(userEmail)
+                .collection("rooms")
+                .document(roomId.toString())
+                .collection("messages")
+                .get()
+                .await()
+
+            messagesSnapshot.isEmpty
+        } catch (e: Exception) {
+            Log.e("FirestoreHandler", "Error checking if room is empty: ${e.message}")
+            true // Nếu có lỗi, coi như phòng trống
+        }
+    }
     // Tạo phòng chat mới
     fun createNewChatRoom(userEmail: String, roomId: Int) {
         val roomCollection = firestore.collection("chats")

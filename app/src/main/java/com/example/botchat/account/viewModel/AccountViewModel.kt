@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.botchat.BuildConfig
 import com.example.botchat.R
 import com.example.botchat.account.viewModel.edit.EditAccountHandler
 import com.example.botchat.account.viewModel.forgot.ForgotPasswordHandler
@@ -58,7 +59,7 @@ class AccountViewModel : ViewModel() {
 
     fun logoutUser(context: Context) {
         auth.signOut()
-        val googleClientId = context.getString(R.string.google_client_id)
+        val googleClientId =  BuildConfig.google_client_id
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(googleClientId)
             .requestEmail()
@@ -76,7 +77,9 @@ class AccountViewModel : ViewModel() {
 
     suspend fun signInWithGoogle(googleIdToken: String, displayName: String?, email: String?, dateOfBirth: String? = null): Boolean {
         val success = loginHandler.signInWithGoogle(googleIdToken, displayName, email, dateOfBirth)
+        println("Sign-in success: $success, isLoggedIn before: $isLoggedIn")
         if (success) isLoggedIn = true
+        println("isLoggedIn after: $isLoggedIn")
         return success
     }
 

@@ -11,10 +11,15 @@ import kotlinx.coroutines.withContext
 class ChatRoomManager(
     private val firestoreHandler: FirestoreHandler,
     private val auth: FirebaseAuth,
-    private val messageList: MutableList<MessageModel>
+    private val messageList: MutableList<MessageModel>,
+    private val onRoomIdChanged: (Int) -> Unit
 ) {
 
     var roomId: Int = 0
+        set(value) {
+            field = value
+            onRoomIdChanged(value) // Gọi callback khi roomId thay đổi
+        }
 
     // Khởi tạo roomId khi bắt đầu
     suspend fun initialize(userEmail: String): Int {
@@ -30,21 +35,44 @@ class ChatRoomManager(
         messageList.addAll(messages)
     }
 
-
     // Tải tin nhắn cho một phòng cụ thể
     suspend fun loadMessagesForRoom(roomId: Int, userEmail: String) {
+        this.roomId = roomId
         val messages = firestoreHandler.loadMessages(roomId, userEmail)
         messageList.clear()
         messageList.addAll(messages)
     }
 
+    // Lấy ID của phòng mới nhất
+    suspend fun getLatestChatRoomId(userEmail: String): Int? {
+        return firestoreHandler.getLatestChatRoomId(userEmail)
+    }
+
     // Tạo phòng chat mới nếu phòng hiện tại có nội dung
     suspend fun createNewChatRoom(userEmail: String) {
-        val newRoomId = firestoreHandler.initializeRoomId(userEmail)
-        roomId = newRoomId
-        messageList.clear()
-        firestoreHandler.createNewChatRoom(userEmail, newRoomId)
-        loadMessages(userEmail) // Đảm bảo tải tin nhắn cho phòng mới
+        val latestRoomId = getLatestChatRoomId(userEmail)
+
+        if (roomId != latestRoomId) {
+            if (latestRoomId != null && firestoreHandler.isRoomEmpty(latestRoomId, userEmail)) {
+                roomId = latestRoomId
+                loadMessages(userEmail)
+            } else {
+                // Tạo phòng mới
+                val newRoomId = firestoreHandler.initializeRoomId(userEmail)
+                roomId = newRoomId
+                messageList.clear()
+                firestoreHandler.createNewChatRoom(userEmail, newRoomId)
+                loadMessages(userEmail)
+            }
+        } else {
+            if (!messageList.isEmpty()) {
+                val newRoomId = firestoreHandler.initializeRoomId(userEmail)
+                roomId = newRoomId
+                messageList.clear()
+                firestoreHandler.createNewChatRoom(userEmail, newRoomId)
+                loadMessages(userEmail)
+            }
+        }
     }
 
     // Lấy tin nhắn cũ nhất từ mỗi phòng
@@ -71,5 +99,4 @@ class ChatRoomManager(
     fun saveMessage(message: MessageModel, role: String, userEmail: String) {
         firestoreHandler.saveMessageToFirestore(message, role, userEmail, roomId)
     }
-
 }
